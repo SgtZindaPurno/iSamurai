@@ -5,7 +5,7 @@ using UnityEngine;
 public class Camera : MonoBehaviour
 {
     public float RotationSpeed;
-   public Transform  player;//target is the main camera
+   public Transform cameraPivot;//target is the main camera
     float mouseX, mouseY;
 
     
@@ -21,6 +21,7 @@ public class Camera : MonoBehaviour
     // Update is called once per frame
     void LateUpdate()
     {
+        transform.position = cameraPivot.position;
         CamControl();
     }
     public void ResetRotation()
@@ -31,6 +32,7 @@ public class Camera : MonoBehaviour
 
     void CamControl()
     {
+
 
         mouseX += Input.GetAxis("Mouse X") * RotationSpeed * 2f; 
         mouseY -= Input.GetAxis("Mouse Y") * RotationSpeed * 2f;
