@@ -5,14 +5,16 @@ using UnityEngine;
 public class Character_Controller : MonoBehaviour
 {
     public Transform Player, Camera, orientation;
-    public float rotation_speed, walk_speed, inputAngle,angleDiff;
-    public float orientAngle;
+    public float rotation_speed, walk_speed;
+    public float orientAngle,Jumpforce;
     private float horizontalInput, verticalInput;
-    public int Turning;
+    public string HitCollider;
     public Rigidbody rb;
     public Vector3 inputDir;
-    public bool Running;
+    public bool Running, Jumping, grounded,zoomed;
     public Animator anim;
+    public Camera CamScript;
+   
     // Start is called before the first frame update
     void Start()
     {
@@ -22,14 +24,46 @@ public class Character_Controller : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetButton("Run"))
+        RaycastHit groundRay; 
+        Physics.Raycast(transform.position, -Vector3.up, out groundRay);
+        
+
+        if(groundRay.collider == null)
         {
-            Running = true;
+            HitCollider = "nothing";
         }
-        if (!Input.GetButton("Run"))
+
+        if (groundRay.collider!=null)
         {
-            Running = false;
+            HitCollider = groundRay.collider.name + groundRay.distance;
+            Debug.DrawRay(transform.position, -Vector3.up * groundRay.distance, Color.yellow);
+
+            if (groundRay.distance < 0.9f)
+            {
+                grounded = true;
+                Jumping = false;
+                anim.SetBool("jump", false);
+            }
+            else if(groundRay.distance>=0.9f)
+            {
+                grounded = false;
+            }
         }
+        if(Input.GetButtonDown ("Jump"))
+        {
+            if (grounded == true)
+            {
+                if (Jumping == false)
+                {
+                    Jump();
+                    Debug.Log("jumped");
+                }
+            }
+        }
+
+
+
+        
 
         Vector3 viewDir = Player.position - new Vector3(Camera.position.x, Player.position.y, Camera.position.z);
         orientation.forward = viewDir;
@@ -38,30 +72,81 @@ public class Character_Controller : MonoBehaviour
         verticalInput = Input.GetAxis("Vertical");
         inputDir = orientation.forward * verticalInput + orientation.right * horizontalInput;
 
-
-        if (inputDir != Vector3.zero)
+        if (Input.GetButton("Fire1") || Input.GetButton("Fire2"))
         {
-            Player.forward = Vector3.Slerp(Player.forward, inputDir.normalized, Time.deltaTime * rotation_speed);
+            zoomed = true;
+        }
+        if (!Input.GetButton("Fire1") && !Input.GetButton("Fire2"))
+        {
+            zoomed = false;
+        }
+
+        if (Input.GetButton("Run"))
+        {
+            if (zoomed==false)
+            {
+                Running = true;
+            }
+            if (zoomed==true)
+            {
+                Running = false;
+            }
+
+        }
+        if (!Input.GetButton("Run"))
+        {
+            Running = false;
+        }
+
+        if (zoomed==true)
+        {
+            
+            Player.forward =  orientation.forward;
+            CamScript.Zoom();
+        }
+        if (zoomed == false)
+        {
+            if (inputDir != Vector3.zero)
+            {
+                Player.forward = Vector3.Slerp(Player.forward, inputDir.normalized, Time.deltaTime * rotation_speed);
+            }
+
+            CamScript.ZoomOut();
         }
 
 
-        checkRotationDir();
+
+
         AnimateMovement();
         MoveCharacter(Running);
 
 
     }
+    void Jump()
+    {
+        anim.SetBool("jump", true);
+        Jumping = true;
+        rb.AddForce(transform.up * Jumpforce);
+       
+        
+    }
+   
+
     void MoveCharacter(bool runstate)
     {
 
 
         if (runstate == true)
         {
-            rb.velocity = inputDir * walk_speed * 4 * Time.deltaTime;
+
+
+            rb.MovePosition(transform.position + (inputDir * walk_speed * 4 * Time.deltaTime));
         }
         else
         {
-            rb.velocity = inputDir * walk_speed * Time.deltaTime;
+          
+                rb.MovePosition(transform.position + (inputDir * walk_speed * Time.deltaTime));
+            
         }
 
     }
@@ -72,7 +157,8 @@ public class Character_Controller : MonoBehaviour
         if (horizontalInput == 0 && verticalInput == 0)
         {
             anim.SetInteger("motion_state", 0);
-            Turning = 0;
+           
+            
         }
         else if (horizontalInput != 0 || verticalInput != 0)
         {
@@ -84,32 +170,9 @@ public class Character_Controller : MonoBehaviour
             {
                 anim.SetInteger("motion_state", 1);
             }
-
            
+
         }
     }
-    void checkRotationDir()
-    {
-        
-        inputAngle = Mathf.Atan2(-horizontalInput, verticalInput) * Mathf.Rad2Deg ;
-        orientAngle = orientation.localEulerAngles.y;
-        orientAngle = (orientAngle + 180f) % 360f - 180f;
-        angleDiff = Mathf.Abs(inputAngle - orientAngle);
-       
-        if (angleDiff > 20)
-        {
-            if (orientation.localRotation.y < inputAngle)
-            {
-                Turning = 2;//left
-            }
-            if (orientation.localRotation.y > inputAngle)
-            {
-                Turning = 1; //right
-            }
-        }
-        else if(angleDiff<20)
-        {
-            Turning = 0;
-        }
-    }
+   
 }

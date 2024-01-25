@@ -1,12 +1,20 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Animations;
+using UnityEngine.Animations.Rigging;
+
+
 
 public class Camera : MonoBehaviour
 {
     public float RotationSpeed;
-   public Transform cameraPivot;//target is the main camera
+    public Transform cameraPivot;//target is the main camera
     float mouseX, mouseY;
+    public Vector3 CamPosOut, CamPosZoom;
+    public Transform Cam;
+    public MultiAimConstraint[] AimIks;
+    
 
     
     
@@ -28,6 +36,23 @@ public class Camera : MonoBehaviour
     {
         mouseX = 0f;
         mouseY = 0f;
+    }
+    public void Zoom()
+    {
+        Cam.localPosition = Vector3.Slerp(Cam.localPosition, CamPosZoom, 2f);
+        
+        foreach( MultiAimConstraint m_spt in AimIks)
+        {
+            m_spt.weight = 0.25f;
+        }
+    }
+    public void ZoomOut()
+    {
+        Cam.localPosition = Vector3.Slerp(Cam.localPosition, CamPosOut,2f);
+        foreach (MultiAimConstraint m_spt in AimIks)
+        {
+            m_spt.weight = 0f;
+        }
     }
 
     void CamControl()
