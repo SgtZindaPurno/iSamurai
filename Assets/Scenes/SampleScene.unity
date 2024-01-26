@@ -565,6 +565,11 @@ MonoBehaviour:
   zoomed: 0
   anim: {fileID: 2125696759}
   CamScript: {fileID: 1944856588}
+  LongPressDuration: 0.15
+  RpressStartTime: 0
+  LpressStartTime: 0
+  LongPressingRight: 0
+  LongPressingLeft: 0
 --- !u!54 &568346695
 Rigidbody:
   m_ObjectHideFlags: 0

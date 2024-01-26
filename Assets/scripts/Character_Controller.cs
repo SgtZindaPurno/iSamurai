@@ -14,6 +14,9 @@ public class Character_Controller : MonoBehaviour
     public bool Running, Jumping, grounded,zoomed;
     public Animator anim;
     public Camera CamScript;
+    public float LongPressDuration=1f, RpressStartTime,LpressStartTime;
+    public bool LongPressingRight, LongPressingLeft;
+    
    
     // Start is called before the first frame update
     void Start()
@@ -74,12 +77,62 @@ public class Character_Controller : MonoBehaviour
 
         if (Input.GetButton("Fire1") || Input.GetButton("Fire2"))
         {
-            zoomed = true;
+            if (LongPressingLeft == true || LongPressingRight == true)
+            {
+                zoomed = true;
+            }
         }
         if (!Input.GetButton("Fire1") && !Input.GetButton("Fire2"))
         {
             zoomed = false;
+          
         }
+
+        if (!Input.GetButton("Fire1") )
+        {
+            
+            LongPressingLeft = false;
+           
+            LpressStartTime = 0f;
+           
+        }
+        if (!Input.GetButton("Fire2"))
+        {
+
+            
+            LongPressingRight = false;
+           
+            RpressStartTime = 0f;
+        }
+
+
+      
+        if(Input.GetButton("Fire1"))
+        {
+            LpressStartTime += Time.deltaTime;
+
+
+            if (LpressStartTime >= LongPressDuration)
+            {
+                LongPressingLeft = true;
+            }
+        }
+
+        if (Input.GetButton("Fire2"))
+        {
+            RpressStartTime += Time.deltaTime;
+
+
+            if (RpressStartTime >= LongPressDuration)
+            {
+                LongPressingRight = true;
+            }
+        }
+
+
+
+
+
 
         if (Input.GetButton("Run"))
         {
@@ -174,5 +227,6 @@ public class Character_Controller : MonoBehaviour
 
         }
     }
+
    
 }
