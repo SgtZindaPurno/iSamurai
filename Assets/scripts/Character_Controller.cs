@@ -16,6 +16,8 @@ public class Character_Controller : MonoBehaviour
     public Camera CamScript;
     public float LongPressDuration=1f, RpressStartTime,LpressStartTime;
     public bool LongPressingRight, LongPressingLeft;
+    public Weapons wpn;
+    
     
    
     // Start is called before the first frame update
@@ -59,10 +61,12 @@ public class Character_Controller : MonoBehaviour
                 if (Jumping == false)
                 {
                     Jump();
-                    Debug.Log("jumped");
+                   
                 }
             }
         }
+
+        
 
 
 
@@ -88,9 +92,39 @@ public class Character_Controller : MonoBehaviour
           
         }
 
+        if(Input.GetButtonUp("Fire1"))
+        {
+            if (LpressStartTime < 0.1f)
+            {
+                if (Running == false)
+                {
+                    if(Jumping==false)
+                    {
+                        Attack(1);
+                    }
+                   
+                }
+            }
+        }
+        if (Input.GetButtonUp("Fire2"))
+        {
+            if (RpressStartTime < 0.1f)
+            {
+                if(Running==false)
+                {
+                    if(Jumping==false)
+                    {
+                        Attack(2);
+                    }
+                }
+                
+            }
+        }
+
+
         if (!Input.GetButton("Fire1") )
         {
-            
+           
             LongPressingLeft = false;
            
             LpressStartTime = 0f;
@@ -98,8 +132,8 @@ public class Character_Controller : MonoBehaviour
         }
         if (!Input.GetButton("Fire2"))
         {
+           
 
-            
             LongPressingRight = false;
            
             RpressStartTime = 0f;
@@ -183,7 +217,10 @@ public class Character_Controller : MonoBehaviour
        
         
     }
-   
+    void Attack(int side)
+    {
+        wpn.InitAttack(side);
+    }   
 
     void MoveCharacter(bool runstate)
     {
