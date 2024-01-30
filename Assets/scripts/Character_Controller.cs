@@ -1,6 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
+
 
 public class Character_Controller : MonoBehaviour
 {
@@ -17,13 +20,23 @@ public class Character_Controller : MonoBehaviour
     public float LongPressDuration=1f, RpressStartTime,LpressStartTime;
     public bool LongPressingRight, LongPressingLeft;
     public Weapons wpn;
+    public bool LeftAtt,RightAtt;
+
+    public int AmmoLeft, AmmoRight;
+    public TextMeshProUGUI LeftCounter, RightCounter, HealthCounter;
+
+    public int playerHealth = 100;
+    
     
     
    
     // Start is called before the first frame update
     void Start()
     {
-
+        LeftCounter.text = AmmoLeft.ToString();
+        RightCounter.text = AmmoRight.ToString();
+        HealthCounter.text = "+" + playerHealth.ToString();
+            
     }
 
     // Update is called once per frame
@@ -94,13 +107,34 @@ public class Character_Controller : MonoBehaviour
 
         if(Input.GetButtonUp("Fire1"))
         {
-            if (LpressStartTime < 0.1f)
+            if (Jumping == false)
             {
                 if (Running == false)
                 {
-                    if(Jumping==false)
+                    if (wpn.weaponLeft == 0)
                     {
-                        Attack(1);
+                        if (LpressStartTime < 0.15f)
+                        {
+                            if (LeftAtt == false)
+                            {
+                                Attack(1);
+                                LeftAtt = true;
+                            }
+                        }
+                    }
+                    if (wpn.weaponLeft == 1)
+                    {
+                        if (LongPressingLeft == true)
+                        {
+                            if (AmmoLeft > 0)
+                            {
+                                Shoot(1);
+                                AmmoLeft--;
+                                LeftCounter.text = AmmoLeft.ToString();
+                                RightCounter.text = AmmoRight.ToString();
+
+                            }
+                        }
                     }
                    
                 }
@@ -108,38 +142,43 @@ public class Character_Controller : MonoBehaviour
         }
         if (Input.GetButtonUp("Fire2"))
         {
-            if (RpressStartTime < 0.1f)
+            if (Jumping == false)
             {
                 if(Running==false)
                 {
-                    if(Jumping==false)
+                    if (wpn.weaponRight == 0)
                     {
-                        Attack(2);
+                        if (RpressStartTime < 0.15f)
+                        {
+                            if (RightAtt == false)
+                            {
+                                Attack(2);
+                                RightAtt = true;
+                            }
+                        }
                     }
+                    if (wpn.weaponRight == 1)
+                    {
+                        if (LongPressingRight == true)
+                        {
+                            if (AmmoRight > 0)
+                            {
+                                Shoot(2);
+                                AmmoRight--;
+                                LeftCounter.text = AmmoLeft.ToString();
+                                RightCounter.text = AmmoRight.ToString();
+
+                            }
+                        }
+                    }
+                    
                 }
                 
             }
+           
+
+            
         }
-
-
-        if (!Input.GetButton("Fire1") )
-        {
-           
-            LongPressingLeft = false;
-           
-            LpressStartTime = 0f;
-           
-        }
-        if (!Input.GetButton("Fire2"))
-        {
-           
-
-            LongPressingRight = false;
-           
-            RpressStartTime = 0f;
-        }
-
-
       
         if(Input.GetButton("Fire1"))
         {
@@ -149,6 +188,7 @@ public class Character_Controller : MonoBehaviour
             if (LpressStartTime >= LongPressDuration)
             {
                 LongPressingLeft = true;
+              
             }
         }
 
@@ -160,25 +200,25 @@ public class Character_Controller : MonoBehaviour
             if (RpressStartTime >= LongPressDuration)
             {
                 LongPressingRight = true;
+               
             }
         }
 
-
-
-
-
-
         if (Input.GetButton("Run"))
         {
-            if (zoomed==false)
+            if (LeftAtt == false && RightAtt == false)
             {
-                Running = true;
-            }
-            if (zoomed==true)
-            {
-                Running = false;
-            }
 
+
+                if (zoomed == false)
+                {
+                    Running = true;
+                }
+                if (zoomed == true)
+                {
+                    Running = false;
+                }
+            }
         }
         if (!Input.GetButton("Run"))
         {
@@ -190,6 +230,26 @@ public class Character_Controller : MonoBehaviour
             
             Player.forward =  orientation.forward;
             CamScript.Zoom();
+            if(LongPressingLeft==true)
+            {
+                if(wpn.weaponLeft==1)
+                {
+                    wpn.AimWeapon(1);
+                }
+                
+                
+                anim.SetBool("zoomLeft", true);
+            }
+            if(LongPressingRight==true)
+            {
+                if(wpn.weaponRight==1)
+                {
+                    wpn.AimWeapon(2);
+                }
+
+                
+                anim.SetBool("zoomRight", true);
+            }
         }
         if (zoomed == false)
         {
@@ -209,6 +269,40 @@ public class Character_Controller : MonoBehaviour
 
 
     }
+    private void LateUpdate()
+    {
+        if (!Input.GetButton("Fire1"))
+        {
+          
+
+             LongPressingLeft = false;
+
+            LpressStartTime = 0f;
+            anim.SetBool("zoomLeft", false);
+
+            if(wpn.weaponLeft==1)
+            {
+                wpn.AimDown(1);
+            }
+
+
+        }
+        if (!Input.GetButton("Fire2"))
+        {
+            
+
+            LongPressingRight = false;
+
+            RpressStartTime = 0f;
+             anim.SetBool("zoomRight", false);
+
+
+            if (wpn.weaponRight == 1)
+            {
+                wpn.AimDown(2);
+            }
+        }
+    }
     void Jump()
     {
         anim.SetBool("jump", true);
@@ -218,9 +312,13 @@ public class Character_Controller : MonoBehaviour
         
     }
     void Attack(int side)
-    {
+    { 
         wpn.InitAttack(side);
-    }   
+    }  
+    void Shoot(int Side)
+    {
+        wpn.InitShoot(Side);
+    }
 
     void MoveCharacter(bool runstate)
     {
@@ -262,6 +360,14 @@ public class Character_Controller : MonoBehaviour
             }
            
 
+        }
+    }
+    public void playerTakeDmg(int Damage)
+    {
+        playerHealth = playerHealth - Damage;
+        if(playerHealth<=0)
+        {
+            Debug.Log("PlayerDead");
         }
     }
 

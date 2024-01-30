@@ -15,6 +15,7 @@ public class Camera : MonoBehaviour
     public Transform Cam;
     public MultiAimConstraint[] AimIks;
     
+    
 
     
     
@@ -39,11 +40,12 @@ public class Camera : MonoBehaviour
     }
     public void Zoom()
     {
+
         Cam.localPosition = Vector3.Slerp(Cam.localPosition, CamPosZoom, 2f);
         
         foreach( MultiAimConstraint m_spt in AimIks)
         {
-            m_spt.weight = 0.25f;
+            m_spt.weight = 0.5f;
         }
     }
     public void ZoomOut()
