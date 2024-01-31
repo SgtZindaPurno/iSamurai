@@ -26,7 +26,7 @@ public class Character_Controller : MonoBehaviour
     public TextMeshProUGUI LeftCounter, RightCounter, HealthCounter;
 
     public int playerHealth = 100;
-    
+    public bool BlockingRight, BlockingLeft;
     
     
    
@@ -139,6 +139,7 @@ public class Character_Controller : MonoBehaviour
                    
                 }
             }
+            BlockingLeft = false;
         }
         if (Input.GetButtonUp("Fire2"))
         {
@@ -175,8 +176,8 @@ public class Character_Controller : MonoBehaviour
                 }
                 
             }
-           
 
+            BlockingRight = false;
             
         }
       
@@ -188,6 +189,10 @@ public class Character_Controller : MonoBehaviour
             if (LpressStartTime >= LongPressDuration)
             {
                 LongPressingLeft = true;
+                if(wpn.weaponLeft==0)
+                {
+                    BlockingLeft = true;
+                }
               
             }
         }
@@ -200,7 +205,11 @@ public class Character_Controller : MonoBehaviour
             if (RpressStartTime >= LongPressDuration)
             {
                 LongPressingRight = true;
-               
+                if (wpn.weaponRight == 0)
+                {
+                    BlockingRight = true;
+                }
+
             }
         }
 
