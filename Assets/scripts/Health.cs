@@ -7,8 +7,11 @@ using UnityEngine.UI;
 
 public class Health : MonoBehaviour
 {
-   
-    public int HealthPoint=100; 
+    
+    public int HealthPoint=100;
+    public EnemyAi brain;
+    public Animator deathanim;
+    
     // Start is called before the first frame update
     void Start()
     {
@@ -24,9 +27,18 @@ public class Health : MonoBehaviour
     {
         HealthPoint = HealthPoint - dmg;
 
+        if (brain != null)
+        {
+            brain.underAttack = true;
+        }
         if(HealthPoint<=0)
         {
-            Debug.Log("Die");
+            brain.enabled = false;
+            deathanim.SetBool("dead", true);
+           
         }
     }
+    
+
+    
 }

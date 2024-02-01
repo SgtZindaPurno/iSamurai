@@ -16,12 +16,63 @@ public class Weapons : MonoBehaviour
     public GameObject muzzleflash_L, muzzleflash_R;
     public AudioSource ShootSound, SlashSound;
 
+    public GameObject LeftKatana, RightKatana, LeftGun, RightGun;
+
     
     // Start is called before the first frame update
     void Start()
     {
         anim.SetInteger("weaponLeft", weaponLeft);
         anim.SetInteger("weaponRight", weaponRight);
+
+        UpdateWeapons();
+
+
+    }
+    public void UpdateWeapons()
+    {
+        if (weaponLeft == 0)
+        {
+            LeftKatana.SetActive(true);
+            LeftGun.SetActive(false);
+        }
+        if (weaponLeft == 1)
+        {
+            LeftKatana.SetActive(false);
+            LeftGun.SetActive(true);
+        }
+        if (weaponRight == 0)
+        {
+            RightKatana.SetActive(true);
+            RightGun.SetActive(false);
+
+        }
+        if (weaponRight== 1)
+        {
+            RightKatana.SetActive(false);
+            RightGun.SetActive(true);
+        }
+     
+    }
+    public void Katanaleft()
+    {
+        weaponLeft = 0;
+        UpdateWeapons();
+    }
+    public void Katanaright()
+    {
+        weaponRight = 0;
+        UpdateWeapons();
+    }
+    public void Gunleft()
+    {
+        weaponLeft = 1;
+        UpdateWeapons();
+    }
+    public void Gunright()
+    {
+        weaponRight = 1;
+        UpdateWeapons();
     }
 
     // Update is called once per frame

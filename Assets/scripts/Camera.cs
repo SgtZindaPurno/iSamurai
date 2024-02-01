@@ -30,8 +30,12 @@ public class Camera : MonoBehaviour
     // Update is called once per frame
     void LateUpdate()
     {
-        transform.position = cameraPivot.position;
-        CamControl();
+        if (Time.timeScale == 1)
+        {
+
+            transform.position = cameraPivot.position;
+            CamControl();
+        }
     }
     public void ResetRotation()
     {

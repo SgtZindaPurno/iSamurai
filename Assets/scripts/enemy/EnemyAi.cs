@@ -6,7 +6,7 @@ public class EnemyAi : MonoBehaviour
 {
 
     public Animator AiAnim;
-    public bool Patrol, SawPlayer,at01,at02;
+    public bool Patrol, SawPlayer,at01,at02,attacking;
     public Transform PatrolPoint01, PatrolPoint02;
     public NavMeshAgent Nav;
     public float Dist01,Dist02, timeAt2,timeAt1;
@@ -14,76 +14,127 @@ public class EnemyAi : MonoBehaviour
     public float DistPlayer;
     public Transform player;
     public float StoppingDist;
-    
     public int attackValue; //1 for light, 2 for heavy and 3 for mixed
+    public bool underAttack;
+    public int lightDmg, heavyDmg;//alwasy even numbers
+    public float rand;
+    private Character_Controller PlyHP;
     
     
     
     // Start is called before the first frame update
     void Start()
     {
+        PlyHP = player.GetComponent<Character_Controller>();
+
         
     }
 
     // Update is called once per frame
     void Update()
     {
-       if(SawPlayer == false)
+        if (Time.timeScale == 1)
         {
-            if(Patrol == true)
-            {
-                Patroling();
-            }
-        }
-       if(SawPlayer==true)
-        {
-            Nav.stoppingDistance = StoppingDist;
-            DistPlayer = Vector3.Distance(transform.position, player.position);
-            if(DistPlayer>StoppingDist)
-            {
-                
-                MoveToPlayer();
-            }
-            if(DistPlayer<=StoppingDist)
-            {
-                Vector3 Facetowards = new Vector3(player.position.x, this.transform.position.y, player.position.z);
-                this.transform.LookAt(Facetowards);
 
-
-                
+            if (PlyHP.playerHealth > 0)
+            {
+                if (SawPlayer == false)
                 {
-                    AttackPlayer(attackValue);
-                   
+                    if (Patrol == true)
+                    {
+                        Patroling();
+                    }
+                }
+                if (SawPlayer == true)
+                {
+                    Nav.stoppingDistance = StoppingDist;
+                    DistPlayer = Vector3.Distance(transform.position, player.position);
+                    if (DistPlayer >= StoppingDist)
+                    {
+
+                        MoveToPlayer();
+                    }
+                    if (DistPlayer < StoppingDist)
+                    {
+                        Vector3 Facetowards = new Vector3(player.position.x, this.transform.position.y, player.position.z);
+                        this.transform.LookAt(Facetowards);
+
+
+                        if (attacking == false)
+                        {
+                            AttackPlayer(attackValue);
+                            Debug.Log("start attak");
+                        }
+                    }
+
+                }
+                if (underAttack == true)
+                {
+                    SawPlayer = true;
                 }
             }
+            if (PlyHP.playerHealth <= 0)
+            {
+                SawPlayer = false;
+                underAttack = false;
+                AiAnim.SetInteger("motion", 0);
+            }
 
+
+
+        }
+    }
+    public void DmgPlayer()
+    {
+        if (DistPlayer <= StoppingDist)
+        {
+
+            if (attackValue == 1)
+            {
+                PlyHP.playerTakeDmg(lightDmg,1);
+            }
+            if (attackValue == 2)
+            {
+                PlyHP.playerTakeDmg(heavyDmg,2);
+            }
+            if (attackValue == 3)
+            {
+                if (rand <= 0.5)
+                {
+                    PlyHP.playerTakeDmg(lightDmg,1);
+                }
+                else if (rand > 0.5)
+                {
+                    PlyHP.playerTakeDmg(heavyDmg,2);
+                }
+            }
         }
 
     }
     void AttackPlayer(int attacktype)
     {
-      
-
+        attacking = true;
+        
         if(attacktype==1)
         {
             AiAnim.SetInteger("motion", 3);
-            //give dmg and finsh attack
+           
         }
         if(attacktype==2)
         {
             AiAnim.SetInteger("motion", 4);
-            //give dmg and finsh attack
+            
         }
         if (attacktype==3)
         {
-            float rand = Random.value;
+             rand = Random.value;
             if(rand<=0.5)
             {
-                //lightattack
+                AiAnim.SetInteger("motion", 3);
             }
             else if(rand>0.5)
             {
-                //heavyattack
+                AiAnim.SetInteger("motion", 4);
             }
         }
        
@@ -91,7 +142,7 @@ public class EnemyAi : MonoBehaviour
         
     void MoveToPlayer()
     {
-       
+        attacking = false;
         Nav.SetDestination(player.position);
         AiAnim.SetInteger("motion", 2);
         Nav.speed = 4f;
@@ -157,4 +208,5 @@ public class EnemyAi : MonoBehaviour
         }
         
     }
+    
 }
